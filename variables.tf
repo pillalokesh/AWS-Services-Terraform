@@ -57,3 +57,8 @@ variable "instance_name" {
   description = "Base name for EC2 instances"
   default     = "ec2-instance"
 }
+
+variable "bucket_name" {
+  description = "Name of the S3 bucket"
+  default     = "service-code-bucket-lokesh-unique"
+}
