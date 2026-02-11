@@ -3,12 +3,14 @@ provider "aws" {
 }
 
 module "vpc" {
-  source            = "./modules/vpc"
-  vpc_cidr          = var.vpc_cidr
-  vpc_name          = var.vpc_name
-  subnet_cidr       = var.subnet_cidr
-  subnet_name       = var.subnet_name
-  availability_zone = var.availability_zone
+  source              = "./modules/vpc"
+  vpc_cidr            = var.vpc_cidr
+  vpc_name            = var.vpc_name
+  subnet_cidr         = var.subnet_cidr
+  subnet_name         = var.subnet_name
+  availability_zone   = var.availability_zone
+  subnet_cidr_2       = var.subnet_cidr_2
+  availability_zone_2 = var.availability_zone_2
 }
 
 module "security_group" {
@@ -73,4 +75,13 @@ module "route53" {
   hosted_zone_name           = var.hosted_zone_name
   cloudfront_domain_name     = module.cloudfront.distribution_domain_name
   cloudfront_hosted_zone_id  = module.cloudfront.distribution_hosted_zone_id
+}
+
+module "alb" {
+  source             = "./modules/alb"
+  alb_name           = "ec2-load-balancer"
+  vpc_id             = module.vpc.vpc_id
+  subnet_ids         = module.vpc.subnet_ids
+  security_group_ids = [module.security_group.security_group_id]
+  instance_ids       = module.ec2.instance_ids
 }

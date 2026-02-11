@@ -53,3 +53,11 @@ output "autoscaling_group_name" {
 output "cloudwatch_sns_topic" {
   value = module.cloudwatch.sns_topic_arn
 }
+
+output "alb_dns_name" {
+  value = module.alb.alb_dns_name
+}
+
+output "alb_url" {
+  value = "http://${module.alb.alb_dns_name}"
+}
