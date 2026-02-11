@@ -29,6 +29,23 @@ module "ec2" {
 }
 
 module "s3" {
-  source      = "./modules/s3"
-  bucket_name = var.bucket_name
+  source          = "./modules/s3"
+  bucket_name     = var.bucket_name
+  index_html_path = "${path.module}/index.html"
+}
+
+module "cloudfront" {
+  source                      = "./modules/cloudfront"
+  bucket_name                 = var.bucket_name
+  bucket_regional_domain_name = module.s3.bucket_regional_domain_name
+  domain_name                 = var.domain_name
+  acm_certificate_arn         = var.acm_certificate_arn
+}
+
+module "route53" {
+  source                     = "./modules/route53"
+  domain_name                = var.domain_name
+  hosted_zone_name           = var.hosted_zone_name
+  cloudfront_domain_name     = module.cloudfront.distribution_domain_name
+  cloudfront_hosted_zone_id  = module.cloudfront.distribution_hosted_zone_id
 }

@@ -62,3 +62,18 @@ variable "bucket_name" {
   description = "Name of the S3 bucket"
   default     = "service-code-bucket-lokesh-unique"
 }
+
+variable "domain_name" {
+  description = "Custom domain name for the website (leave empty to use CloudFront domain)"
+  default     = ""
+}
+
+variable "hosted_zone_name" {
+  description = "Route53 hosted zone name (e.g., example.com)"
+  default     = ""
+}
+
+variable "acm_certificate_arn" {
+  description = "ARN of ACM certificate in us-east-1 for custom domain"
+  default     = ""
+}
