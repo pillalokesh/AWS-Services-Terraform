@@ -41,3 +41,15 @@ output "cloudfront_domain_name" {
 output "website_url" {
   value = var.domain_name != "" ? "https://${var.domain_name}" : "https://${module.cloudfront.distribution_domain_name}"
 }
+
+output "iam_role_arn" {
+  value = module.iam.role_arn
+}
+
+output "autoscaling_group_name" {
+  value = module.autoscaling.autoscaling_group_name
+}
+
+output "cloudwatch_sns_topic" {
+  value = module.cloudwatch.sns_topic_arn
+}

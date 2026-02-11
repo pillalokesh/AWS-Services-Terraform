@@ -27,3 +27,9 @@ variable "instance_name" {
   description = "Base name for EC2 instances"
   type        = string
 }
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile name"
+  type        = string
+  default     = ""
+}

@@ -50,7 +50,7 @@ variable "instance_type" {
 
 variable "instance_count" {
   description = "Number of EC2 instances"
-  default     = 3
+  default     = 1
 }
 
 variable "instance_name" {
@@ -76,4 +76,24 @@ variable "hosted_zone_name" {
 variable "acm_certificate_arn" {
   description = "ARN of ACM certificate in us-east-1 for custom domain"
   default     = ""
+}
+
+variable "alarm_email" {
+  description = "Email address for CloudWatch alarms"
+  default     = ""
+}
+
+variable "asg_min_size" {
+  description = "Minimum size of Auto Scaling Group"
+  default     = 1
+}
+
+variable "asg_max_size" {
+  description = "Maximum size of Auto Scaling Group"
+  default     = 3
+}
+
+variable "asg_desired_capacity" {
+  description = "Desired capacity of Auto Scaling Group"
+  default     = 1
 }

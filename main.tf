@@ -19,19 +19,44 @@ module "security_group" {
 }
 
 module "ec2" {
-  source             = "./modules/ec2"
-  ami_id             = var.ami_id
-  instance_type      = var.instance_type
-  instance_count     = var.instance_count
-  subnet_id          = module.vpc.subnet_id
-  security_group_ids = [module.security_group.security_group_id]
-  instance_name      = var.instance_name
+  source                = "./modules/ec2"
+  ami_id                = var.ami_id
+  instance_type         = var.instance_type
+  instance_count        = var.instance_count
+  subnet_id             = module.vpc.subnet_id
+  security_group_ids    = [module.security_group.security_group_id]
+  instance_name         = var.instance_name
+  iam_instance_profile  = module.iam.instance_profile_name
+}
+
+module "cloudwatch" {
+  source       = "./modules/cloudwatch"
+  instance_ids = module.ec2.instance_ids
+  alarm_email  = var.alarm_email
+}
+
+module "autoscaling" {
+  source                = "./modules/autoscaling"
+  ami_id                = var.ami_id
+  instance_type         = var.instance_type
+  security_group_ids    = [module.security_group.security_group_id]
+  subnet_id             = module.vpc.subnet_id
+  min_size              = var.asg_min_size
+  max_size              = var.asg_max_size
+  desired_capacity      = var.asg_desired_capacity
+  instance_profile_name = module.iam.instance_profile_name
 }
 
 module "s3" {
   source          = "./modules/s3"
   bucket_name     = var.bucket_name
   index_html_path = "${path.module}/index.html"
+}
+
+module "iam" {
+  source     = "./modules/iam"
+  role_name  = "ec2-s3-access-role"
+  bucket_arn = module.s3.bucket_arn
 }
 
 module "cloudfront" {
