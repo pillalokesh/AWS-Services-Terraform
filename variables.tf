@@ -107,3 +107,71 @@ variable "asg_desired_capacity" {
   description = "Desired capacity of Auto Scaling Group"
   type        = number
 }
+
+# RDS Variables
+variable "db_name" {
+  description = "Database name"
+  type        = string
+}
+
+variable "db_username" {
+  description = "Database master username"
+  type        = string
+}
+
+variable "db_password" {
+  description = "Database master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_engine" {
+  description = "Database engine"
+  type        = string
+}
+
+variable "db_engine_version" {
+  description = "Database engine version"
+  type        = string
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+}
+
+variable "db_allocated_storage" {
+  description = "Allocated storage in GB"
+  type        = number
+}
+
+variable "db_multi_az" {
+  description = "Enable Multi-AZ"
+  type        = bool
+}
+
+# Lambda Variables
+variable "lambda_function_name" {
+  description = "Lambda function name"
+  type        = string
+}
+
+variable "lambda_runtime" {
+  description = "Lambda runtime"
+  type        = string
+}
+
+variable "lambda_handler" {
+  description = "Lambda handler"
+  type        = string
+}
+
+variable "lambda_timeout" {
+  description = "Lambda timeout in seconds"
+  type        = number
+}
+
+variable "lambda_memory_size" {
+  description = "Lambda memory size in MB"
+  type        = number
+}

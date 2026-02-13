@@ -62,3 +62,24 @@ asg_desired_capacity = 1  # Desired number of instances
 domain_name          = ""
 hosted_zone_name     = ""
 acm_certificate_arn  = ""
+
+# ----------------------------------------------------------------------------
+# RDS Database Configuration
+# ----------------------------------------------------------------------------
+db_name              = "myappdb"
+db_username          = "admin"
+db_password          = "ChangeMe123!"  # CHANGE THIS!
+db_engine            = "mysql"
+db_engine_version    = "8.0"
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+db_multi_az          = false
+
+# ----------------------------------------------------------------------------
+# Lambda Function Configuration
+# ----------------------------------------------------------------------------
+lambda_function_name = "my-lambda-function"
+lambda_runtime       = "python3.11"
+lambda_handler       = "lambda_function.lambda_handler"
+lambda_timeout       = 30
+lambda_memory_size   = 128

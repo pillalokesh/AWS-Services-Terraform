@@ -61,3 +61,23 @@ output "alb_dns_name" {
 output "alb_url" {
   value = "http://${module.alb.alb_dns_name}"
 }
+
+output "rds_endpoint" {
+  value       = module.rds.db_endpoint
+  description = "RDS database endpoint"
+}
+
+output "rds_database_name" {
+  value       = module.rds.db_name
+  description = "RDS database name"
+}
+
+output "lambda_function_name" {
+  value       = module.lambda.function_name
+  description = "Lambda function name"
+}
+
+output "lambda_function_arn" {
+  value       = module.lambda.function_arn
+  description = "Lambda function ARN"
+}

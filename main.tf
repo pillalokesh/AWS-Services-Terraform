@@ -85,3 +85,36 @@ module "route53" {
   cloudfront_domain_name    = module.cloudfront.distribution_domain_name
   cloudfront_hosted_zone_id = module.cloudfront.distribution_hosted_zone_id
 }
+
+module "rds" {
+  source                   = "./modules/rds"
+  db_name                  = var.db_name
+  db_username              = var.db_username
+  db_password              = var.db_password
+  engine                   = var.db_engine
+  engine_version           = var.db_engine_version
+  instance_class           = var.db_instance_class
+  allocated_storage        = var.db_allocated_storage
+  vpc_id                   = module.vpc.vpc_id
+  subnet_ids               = module.vpc.subnet_ids
+  allowed_security_groups  = [module.security_group.security_group_id]
+  skip_final_snapshot      = true
+  multi_az                 = var.db_multi_az
+}
+
+module "lambda" {
+  source                = "./modules/lambda"
+  function_name         = var.lambda_function_name
+  runtime               = var.lambda_runtime
+  handler               = var.lambda_handler
+  source_file           = "${path.module}/lambda_function.py"
+  timeout               = var.lambda_timeout
+  memory_size           = var.lambda_memory_size
+  subnet_ids            = module.vpc.subnet_ids
+  security_group_ids    = [module.security_group.security_group_id]
+  environment_variables = {
+    DB_ENDPOINT = module.rds.db_endpoint
+    DB_NAME     = module.rds.db_name
+    BUCKET_NAME = module.s3.bucket_id
+  }
+}
