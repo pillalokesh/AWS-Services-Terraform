@@ -23,7 +23,7 @@ module "security_group" {
 module "s3" {
   source          = "./modules/s3"
   bucket_name     = var.bucket_name
-  index_html_path = "${path.module}/index.html"
+  index_html_path = "${path.module}/assets/index.html"
 }
 
 module "iam" {
@@ -107,7 +107,7 @@ module "lambda" {
   function_name         = var.lambda_function_name
   runtime               = var.lambda_runtime
   handler               = var.lambda_handler
-  source_file           = "${path.module}/lambda_function.py"
+  source_file           = "${path.module}/assets/lambda_function.py"
   timeout               = var.lambda_timeout
   memory_size           = var.lambda_memory_size
   subnet_ids            = module.vpc.subnet_ids

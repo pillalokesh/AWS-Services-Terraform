@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:*",
+        "vpc:*",
+        "elasticloadbalancing:*",
+        "autoscaling:*",
+        "s3:*",
+        "cloudfront:*",
+        "route53:*",
+        "iam:*",
+        "cloudwatch:*",
+        "sns:*",
+        "rds:*",
+        "lambda:*",
+        "logs:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
