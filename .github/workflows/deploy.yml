@@ -1,18 +1,35 @@
-name: Terraform Workflow
+name: Deploy Services Step-by-Step
 
 on:
   workflow_dispatch:
     inputs:
-      action:
-        description: 'Select Action'
+      service:
+        description: 'Select Service to Deploy'
         required: true
         type: choice
+        options:
+          - 1-vpc
+          - 2-security-group
+          - 3-s3-iam
+          - 4-ec2
+          - 5-cloudwatch-autoscaling
+          - 6-alb
+          - 7-cloudfront
+          - 8-route53
+          - 9-rds
+          - 10-lambda
+          - all-services
+      action:
+        description: 'Action'
+        required: true
+        type: choice
+        default: 'plan'
         options:
           - plan
           - apply
           - destroy
       environment:
-        description: 'Select Environment'
+        description: 'Environment'
         required: true
         type: choice
         default: 'dev'
@@ -30,8 +47,8 @@ env:
   AWS_REGION: 'us-east-1'
 
 jobs:
-  terraform:
-    name: Terraform ${{ github.event.inputs.action }}
+  deploy-service:
+    name: ${{ github.event.inputs.action }} - ${{ github.event.inputs.service }}
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     
@@ -53,35 +70,137 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Plan
-        if: github.event.inputs.action == 'plan'
+      - name: 📋 Plan/Apply/Destroy - VPC
+        if: github.event.inputs.service == '1-vpc' || github.event.inputs.service == 'all-services'
         run: |
-          terraform plan \
+          echo "🌐 Deploying VPC (Network Foundation)..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.vpc \
             -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
-            -no-color
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
 
-      - name: Terraform Apply
-        if: github.event.inputs.action == 'apply'
+      - name: 📋 Plan/Apply/Destroy - Security Group
+        if: github.event.inputs.service == '2-security-group' || github.event.inputs.service == 'all-services'
         run: |
-          terraform apply \
+          echo "🔒 Deploying Security Groups..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.security_group \
             -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
-            -auto-approve
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
 
-      - name: Terraform Destroy
-        if: github.event.inputs.action == 'destroy'
+      - name: 📋 Plan/Apply/Destroy - S3 & IAM
+        if: github.event.inputs.service == '3-s3-iam' || github.event.inputs.service == 'all-services'
         run: |
-          terraform destroy \
+          echo "🗄️ Deploying S3 Bucket and IAM Roles..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.s3 \
+            -target=module.iam \
             -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
-            -auto-approve
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
 
-      - name: Show Outputs
+      - name: 📋 Plan/Apply/Destroy - EC2
+        if: github.event.inputs.service == '4-ec2' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "💻 Deploying EC2 Instances..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.ec2 \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📋 Plan/Apply/Destroy - CloudWatch & Auto Scaling
+        if: github.event.inputs.service == '5-cloudwatch-autoscaling' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "📊 Deploying CloudWatch and Auto Scaling..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.cloudwatch \
+            -target=module.autoscaling \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📋 Plan/Apply/Destroy - ALB
+        if: github.event.inputs.service == '6-alb' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "⚖️ Deploying Application Load Balancer..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.alb \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📋 Plan/Apply/Destroy - CloudFront
+        if: github.event.inputs.service == '7-cloudfront' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "🌍 Deploying CloudFront CDN..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.cloudfront \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📋 Plan/Apply/Destroy - Route53
+        if: github.event.inputs.service == '8-route53' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "🌐 Deploying Route53 DNS..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.route53 \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📋 Plan/Apply/Destroy - RDS
+        if: github.event.inputs.service == '9-rds' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "🗃️ Deploying RDS Database..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.rds \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📋 Plan/Apply/Destroy - Lambda
+        if: github.event.inputs.service == '10-lambda' || github.event.inputs.service == 'all-services'
+        run: |
+          echo "⚡ Deploying Lambda Function..."
+          terraform ${{ github.event.inputs.action }} \
+            -target=module.lambda \
+            -var-file="environments/${{ github.event.inputs.environment }}.tfvars" \
+            ${{ github.event.inputs.action == 'plan' && '-no-color' || '-auto-approve' }}
+        env:
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_alarm_email: ${{ secrets.ALARM_EMAIL }}
+
+      - name: 📊 Show Outputs
         if: github.event.inputs.action == 'apply'
         run: terraform output
+
+      - name: ✅ Deployment Summary
+        if: github.event.inputs.action == 'apply'
+        run: |
+          echo "### ✅ Service Deployed Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ github.event.inputs.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Action:** ${{ github.event.inputs.action }}" >> $GITHUB_STEP_SUMMARY
